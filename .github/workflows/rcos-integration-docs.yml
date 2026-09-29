@@ -1,0 +1,38 @@
+name: RCOS integration docs
+
+on:
+  pull_request:
+    paths:
+      - docs/RCOS-INTEGRATION.md
+      - scripts/doctor-rcos-integration.mjs
+      - scripts/doctor-rcos-integration.test.mjs
+      - package.json
+      - .github/workflows/rcos-integration-docs.yml
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.2
+      - name: Run integration doctor tests
+        run: node --test scripts/doctor-rcos-integration.test.mjs
+      - name: Check markdown fences
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const text = fs.readFileSync('docs/RCOS-INTEGRATION.md', 'utf8');
+          if ((text.match(/```/g) || []).length % 2) {
+            throw new Error('unclosed markdown fence: docs/RCOS-INTEGRATION.md');
+          }
+          NODE
