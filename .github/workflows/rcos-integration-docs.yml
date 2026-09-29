@@ -24,7 +24,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: pnpm
       - name: Run integration doctor tests
         run: node --test scripts/doctor-rcos-integration.test.mjs
       - name: Check markdown fences
